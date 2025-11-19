@@ -1,66 +1,59 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow - Gestionnaire de tâches</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 600px;
-            padding: 30px;
-        }
-        
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-        
-        .subtitle {
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-
-#taskList li {
-    background: #f8f9fa;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
-    transition: all 0.3s;
+.checkbox {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
 }
 
-#taskList li:hover {
-    background: #e9ecef;
-    transform: translateX(5px);
+#taskList li.completed span {
+    text-decoration: line-through;
+    color: #999;
 }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>✅ TaskFlow</h1>
-        <p class="subtitle">Gérez vos tâches efficacement</p>
-    </div>
-</body>
-</html>
+
+// Modifier l'initialisation
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+// Modifier addTask
+function addTask() {
+    const task = taskInput.value.trim();
+    if (task) {
+        tasks.push({ text: task, completed: false });
+        saveTasks();
+        renderTasks();
+        taskInput.value = '';
+    }
+}
+
+// Modifier renderTasks
+function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = task.completed ? 'completed' : '';
+        li.innerHTML = `
+            <input type="checkbox" class="checkbox" data-index="${index}" ${task.completed ? 'checked' : ''}>
+            <span>${task.text}</span>
+            <button class="deleteBtn" data-index="${index}">🗑️</button>
+        `;
+        taskList.appendChild(li);
+    });
+    
+    // Écouteurs pour checkboxes
+    document.querySelectorAll('.checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            tasks[index].completed = e.target.checked;
+            saveTasks();
+            renderTasks();
+        });
+    });
+    
+    // Écouteurs pour suppression
+    document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        });
+    });
+}
