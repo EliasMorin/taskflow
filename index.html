@@ -88,6 +88,26 @@
     transition: all 0.3s;
 }
 
+#taskList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.deleteBtn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.deleteBtn:hover {
+    background: #ee5a52;
+}
+
 #taskList li:hover {
     background: #e9ecef;
     transform: translateX(5px);
@@ -120,13 +140,26 @@
     
     // Fonction pour afficher les tâches
     function renderTasks() {
-        taskList.innerHTML = '';
-        tasks.forEach((task, index) => {
-            const li = document.createElement('li');
-            li.textContent = task;
-            taskList.appendChild(li);
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${task}</span>
+            <button class="deleteBtn" data-index="${index}">🗑️</button>
+        `;
+        taskList.appendChild(li);
+    });
+    
+    // Ajouter les écouteurs pour les boutons de suppression
+    document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
         });
-    }
+    });
+}
     
     // Ajouter une tâche
     function addTask() {
